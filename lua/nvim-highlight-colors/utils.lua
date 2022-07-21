@@ -126,17 +126,18 @@ function M.get_positions_by_regex(patterns, min_row, max_row, row_offset)
 	local content = M.get_buffer_contents(min_row, max_row)
 
 	for key_pattern, pattern in ipairs(patterns) do
-		for key, value in ipairs(content) do
+		for row, value in ipairs(content) do
 			for match in string.gmatch(value, pattern) do
 				local start_column = vim.fn.match(value, match)
 				local end_column = vim.fn.matchend(value, match)
 				local row = key + min_row - row_offset
 				if (row >= 0) then
 					local same_row_colors = M.table_filter(positions, function(position) return position.row == row end)
+					print(#same_row_colors)
 					table.insert(positions, {
 						value = match,
 						row = row,
-						display_column = #same_row_colors > 0 and #same_row_colors or 0,
+						display_column = #same_row_colors + 1,
 						start_column = start_column,
 						end_column = end_column
 					})
