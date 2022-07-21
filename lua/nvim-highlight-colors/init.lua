@@ -1,11 +1,13 @@
 local utils = require("nvim-highlight-colors.utils")
+local colors = require("nvim-highlight-colors.colors")
+
 local load_on_start_up = false
 local row_offset = 2
 local windows = {}
 
-function is_window_already_created(row, value)
+function is_window_already_created(row, value, display_column)
 	for index, windows_data in ipairs(windows) do
-		if windows_data.row == row and value == windows_data.color then
+		if windows_data.row == row and value == windows_data.color and windows_data.display_column == display_column then
 			return true
 		end
 	end
@@ -41,19 +43,28 @@ function close_not_visible_windows(min_row, max_row)
 end
 
 function show_visible_windows(min_row, max_row)
-	local positions = utils.get_positions_by_regex({"#[%a%d]+", utils.rgb_regex}, min_row - 1, max_row, row_offset)
+	local positions = utils.get_positions_by_regex(
+		{
+			colors.hex_regex,
+			colors.rgb_regex
+		},
+		min_row - 1,
+		max_row,
+		row_offset
+	)
 	for index, data in pairs(positions) do
-		if is_window_already_created(data.row, data.value) == false then
+		if is_window_already_created(data.row, data.value, data.display_column) == false then
 			table.insert(
 				windows,
 				{
-					win_id = utils.create_window(data.row, 0, data.value),
+					win_id = utils.create_window(data.row, data.display_column, data.value),
 					row = data.row,
 					color = data.value
 				}
 			)
 		end
 	end
+	utils.print_table(positions)
 end
 
 function update_windows_visibility()
