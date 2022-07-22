@@ -20,7 +20,7 @@ let s:xterm_8colors = {
 
 " xterm-16 colors "{{{2
 let s:xterm_16colors = {
-\ 'darkgrey':       '#F0F4',
+\ 'darkgrey':       '#F0F',
 \ 'darkgr  '#F7F',
 \ 'blue':           '#5C5CFF',
 \ 'lightblue':      '#5C5CFF',

@@ -121,15 +121,16 @@ function M.get_win_visible_rows(winid)
 	)
 end
 
-function M.get_positions_by_regex(patterns, min_row, max_row, col_offset)
+function M.get_positions_by_regex(patterns, min_row, max_row, col_offset, is_tab_mode)
 	local positions = {}
 	local content = M.get_buffer_contents(min_row, max_row)
 
 	for key_pattern, pattern in ipairs(patterns) do
-		for row, value in ipairs(content) do
+		for key, value in ipairs(content) do
 			for match in string.gmatch(value, pattern) do
 				local start_column = vim.fn.match(value, match)
 				local end_column = vim.fn.matchend(value, match)
+				local row = is_tab_mode and key + 1 or key
 					local same_row_colors = M.table_filter(positions, function(position) return position.row == row end)
 					table.insert(positions, {
 						value = match,

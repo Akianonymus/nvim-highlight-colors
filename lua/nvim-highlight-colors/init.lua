@@ -2,6 +2,7 @@ local utils = require("nvim-highlight-colors.utils")
 local colors = require("nvim-highlight-colors.colors")
 
 local load_on_start_up = false
+is_tab_mode = false
 local windows = {}
 
 function get_column_offset()
@@ -54,7 +55,8 @@ function close_not_visible_windows(min_row, max_row)
 	local windows_to_remove = {}
 	local new_windows_table = {}
 	for index, window_data in ipairs(windows) do
-		local is_visible = window_data.row + window_data.min_row <= max_row and window_data.row + window_data.min_row >= min_row
+		local tab_offset = is_tab_mode and 1 or 0
+		local is_visible = window_data.row + window_data.min_row <= max_row and window_data.row + window_data.min_row - tab_offset >= min_row
 		if is_visible == false then
 			table.insert(windows_to_remove, window_data.win_id)
 		else
@@ -74,7 +76,8 @@ function show_visible_windows(min_row, max_row)
 		},
 		min_row,
 		max_row,
-		column_offset
+		column_offset,
+		is_tab_mode
 	)
 	for index, data in pairs(positions) do
 		if is_window_already_created(data.row, data.value, data.display_column, min_row) == false then
@@ -131,6 +134,20 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
 		if load_on_start_up == true then
 			turn_on()
 		end
+	end,
+})
+
+vim.api.nvim_create_autocmd({"TabEnter"}, {
+	callback = function ()
+		is_tab_mode = true
+		update_windows_visibility()
+	end,
+})
+
+vim.api.nvim_create_autocmd({"TabClosed"}, {
+	callback = function ()
+		is_tab_mode = false
+		turn_off()
 	end,
 })
 
