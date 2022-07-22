@@ -47,7 +47,7 @@ function show_visible_windows(min_row, max_row)
 			table.insert(
 				windows,
 				{
-					win_id = utils.create_window(data.row, data.display_column, data.value),
+					win_id = utils.create_window(data.row, 0, data.value),
 					row = data.row,
 					color = data.value
 				}

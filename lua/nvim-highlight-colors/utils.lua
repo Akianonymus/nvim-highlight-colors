@@ -178,12 +178,9 @@ function M.get_positions_by_regex(patterns, min_row, max_row, row_offset)
 				local end_column = vim.fn.matchend(value, match)
 				local row = key + min_row - row_offset
 				if (row >= 0) then
-					local same_row_colors = M.table_filter(positions, function(position) return position.row == row end)
-					M.print_table({same_row_colors = same_row_colors, #same_row_colors, row = row})
 					table.insert(positions, {
 						value = match,
 						row = row,
-						display_column = #same_row_colors,
 						start_column = start_column,
 						end_column = end_column
 					})
