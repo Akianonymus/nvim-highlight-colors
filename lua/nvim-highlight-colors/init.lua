@@ -17,7 +17,6 @@ function is_window_already_created(row, value, display_column, min_row)
 	for index, window_data in ipairs(windows) do
 		local window_position = vim.api.nvim_win_get_position(window_data.win_id)
 		local window_row = window_position[1]
-		utils.print_table({used_row = window_row - min_row + 1, window_row = window_row, min_row = min_row, display_column = display_column, row = row, value = value, window_data})
 		if window_row == row  and value == window_data.color and window_data.display_column == display_column then
 			return true
 		end
@@ -55,7 +54,6 @@ function close_not_visible_windows(min_row, max_row)
 	local windows_to_remove = {}
 	local new_windows_table = {}
 	for index, window_data in ipairs(windows) do
-		utils.print_table({window_data, max_row = max_row, min_row = min_row})
 		local is_visible = window_data.row + window_data.min_row <= max_row and window_data.row + window_data.min_row >= min_row
 		if is_visible == false then
 			table.insert(windows_to_remove, window_data.win_id)
@@ -83,7 +81,7 @@ function show_visible_windows(min_row, max_row)
 			table.insert(
 				windows,
 				{
-					win_id = utils.create_window(data.row, data.display_column, column_offset, data.value),
+					win_id = utils.create_window(data.row, data.display_column, column_offset, min_row, data.value),
 					row = data.row,
 					min_row = min_row,
 					display_column = data.display_column,
