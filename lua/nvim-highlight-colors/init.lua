@@ -13,9 +13,12 @@ function get_column_offset()
 	return 4
 end
 
-function is_window_already_created(row, value, display_column)
-	for index, windows_data in ipairs(windows) do
-		if windows_data.row == row and value == windows_data.color and windows_data.display_column == display_column then
+function is_window_already_created(row, value, display_column, min_row)
+	for index, window_data in ipairs(windows) do
+		local window_position = vim.api.nvim_win_get_position(window_data.win_id)
+		local window_row = window_position[1]
+		utils.print_table({used_row = window_row - min_row + 1, window_row = window_row, min_row = min_row, display_column = display_column, row = row, value = value, window_data})
+		if window_row == row  and value == window_data.color and window_data.display_column == display_column then
 			return true
 		end
 	end
@@ -32,13 +35,28 @@ function close_windows()
 	windows = {}
 end
 
+function scroll_visible_windows(min_row)
+	for index, window_data in ipairs(windows) do
+		local window_position = vim.api.nvim_win_get_position(window_data.win_id)
+		local window_row = window_position[1]
+		local window_column = window_position[2]
+		vim.api.nvim_win_set_config(
+			window_data.win_id,
+			{
+				relative = "editor",
+				row = window_data.row - (min_row - window_data.min_row),
+				col = window_column
+			}
+		)
+	end
+end
+
 function close_not_visible_windows(min_row, max_row)
 	local windows_to_remove = {}
 	local new_windows_table = {}
 	for index, window_data in ipairs(windows) do
-		local window_position = vim.api.nvim_win_get_position(window_data.win_id)
-		local window_row = window_position[1]
-		local is_visible = window_row <= max_row and window_row >= min_row
+		utils.print_table({window_data, max_row = max_row, min_row = min_row})
+		local is_visible = window_data.row + window_data.min_row <= max_row and window_data.row + window_data.min_row >= min_row
 		if is_visible == false then
 			table.insert(windows_to_remove, window_data.win_id)
 		else
@@ -61,12 +79,14 @@ function show_visible_windows(min_row, max_row)
 		column_offset
 	)
 	for index, data in pairs(positions) do
-		if is_window_already_created(data.row, data.value, data.display_column) == false then
+		if is_window_already_created(data.row, data.value, data.display_column, min_row) == false then
 			table.insert(
 				windows,
 				{
 					win_id = utils.create_window(data.row, data.display_column, column_offset, data.value),
 					row = data.row,
+					min_row = min_row,
+					display_column = data.display_column,
 					color = data.value
 				}
 			)
@@ -79,6 +99,7 @@ function update_windows_visibility()
 	local min_row = visible_rows[1]
 	local max_row = visible_rows[2]
 
+	scroll_visible_windows(min_row)
 	show_visible_windows(min_row, max_row)
 	close_not_visible_windows(min_row, max_row)
 end
