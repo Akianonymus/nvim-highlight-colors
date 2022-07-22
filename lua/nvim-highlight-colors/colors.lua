@@ -1,7 +1,7 @@
 local M = {}
 
 M.rgb_regex = "rgba?[(]+" .. string.rep("%s*%d+%s*", 3, ",") .. ",?%s*%d*%.?%d*%s*[)]+"
-M.hex_regex = "#[%a%d]+"
+M.hex_regex = "#[%a%d]+[%a%d]+[%a%d]+"
 
 function M.convert_rgb_to_hex(r, g, b)
  	return string.format("#%02X%02X%02X", r, g, b)

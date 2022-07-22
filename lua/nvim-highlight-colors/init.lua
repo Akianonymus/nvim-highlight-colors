@@ -2,7 +2,6 @@ local utils = require("nvim-highlight-colors.utils")
 local colors = require("nvim-highlight-colors.colors")
 
 local load_on_start_up = false
-local row_offset = 2
 local windows = {}
 
 function is_window_already_created(row, value, display_column)
@@ -28,9 +27,8 @@ function close_not_visible_windows(min_row, max_row)
 	local windows_to_remove = {}
 	local new_windows_table = {}
 	for index, window_data in ipairs(windows) do
-		local window_config = vim.api.nvim_win_get_config(window_data.win_id)
-		local window_bufpos = window_config.bufpos
-		local window_row = window_bufpos[1] + row_offset
+		local window_position = vim.api.nvim_win_get_position(window_data.win_id)
+		local window_row = window_position[1]
 		local is_visible = window_row <= max_row and window_row >= min_row
 		if is_visible == false then
 			table.insert(windows_to_remove, window_data.win_id)
@@ -48,9 +46,8 @@ function show_visible_windows(min_row, max_row)
 			colors.hex_regex,
 			colors.rgb_regex
 		},
-		min_row - 1,
-		max_row,
-		row_offset
+		min_row,
+		max_row
 	)
 	for index, data in pairs(positions) do
 		if is_window_already_created(data.row, data.value, data.display_column) == false then
@@ -64,7 +61,6 @@ function show_visible_windows(min_row, max_row)
 			)
 		end
 	end
-	utils.print_table(positions)
 end
 
 function update_windows_visibility()

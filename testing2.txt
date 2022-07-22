@@ -1,6 +1,22 @@
   
-	<div style={border-color: #fff; background-color: #4db; color: rgba(255, 60, 25, 1); background-color: #416; cursor: #644)}></div>
+
+
+
+
+
+
+
+
+
+
+
+<div style={border-color: #000; background-color: #4db; color: rgba(255, 60, 25, 1); background-color: #416; cursor: #644)}></div>
+
+
+
+
+
 	<div style={border-color: #fffdff; background-color: #4ddffb; color: rgba(255, 60, 25, 1); background-color: #4ffd16; cursor: #6ff44f)}></div   >
 
-
+a   #000
 asdlkj 

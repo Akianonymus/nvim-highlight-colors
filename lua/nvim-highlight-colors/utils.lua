@@ -121,7 +121,7 @@ function M.get_win_visible_rows(winid)
 	)
 end
 
-function M.get_positions_by_regex(patterns, min_row, max_row, row_offset)
+function M.get_positions_by_regex(patterns, min_row, max_row)
 	local positions = {}
 	local content = M.get_buffer_contents(min_row, max_row)
 
@@ -130,18 +130,14 @@ function M.get_positions_by_regex(patterns, min_row, max_row, row_offset)
 			for match in string.gmatch(value, pattern) do
 				local start_column = vim.fn.match(value, match)
 				local end_column = vim.fn.matchend(value, match)
-				local row = key + min_row - row_offset
-				if (row >= 0) then
 					local same_row_colors = M.table_filter(positions, function(position) return position.row == row end)
-					print(#same_row_colors)
 					table.insert(positions, {
 						value = match,
 						row = row,
-						display_column = #same_row_colors + 1,
+						display_column = #same_row_colors,
 						start_column = start_column,
 						end_column = end_column
 					})
-				end
 			end
 		end
 	end
@@ -151,15 +147,19 @@ end
 
 function M.create_window(row, col, bg_color)
 	local highlight_color_name = string.gsub(bg_color, "#", ""):gsub("[(),%s%.]+", "")
+	local row_content = M.get_buffer_contents(row, row + 1)
 	local buf = vim.api.nvim_create_buf(false, true)
+	local col_position_on_buffer = col == 0 and 1 or col + 1
+	vim.api.nvim_buf_set_lines(buf, 0, 0, true, {string.sub(row_content[1], col_position_on_buffer, col_position_on_buffer)})
 	local window = vim.api.nvim_open_win(buf, false, {
-		relative = "win",
-		bufpos={row,col},
+		relative = "editor",
+		row = row,
+		col = col,
 		width = 1,
 		height = 1,
 		focusable = false,
-		noautocmd = true,
 		zindex = 1,
+		style= "minimal"
 	})
 	vim.api.nvim_command("highlight " .. highlight_color_name .. " guibg=" .. colors.get_color_value(bg_color))
 	vim.api.nvim_win_set_option(window, 'winhighlight', 'Normal:' .. highlight_color_name .. ',FloatBorder:' .. highlight_color_name)
