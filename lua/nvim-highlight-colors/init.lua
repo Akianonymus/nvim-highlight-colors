@@ -84,7 +84,7 @@ function show_visible_windows(min_row, max_row)
 			table.insert(
 				windows,
 				{
-					win_id = utils.create_window(data.row, data.display_column, column_offset, min_row, data.value),
+					win_id = utils.create_window(data.row, data.display_column, column_offset, min_row, data.value, is_tab_mode),
 					row = data.row,
 					min_row = min_row,
 					display_column = data.display_column,

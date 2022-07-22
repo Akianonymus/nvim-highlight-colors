@@ -146,7 +146,7 @@ function M.get_positions_by_regex(patterns, min_row, max_row, col_offset, is_tab
 	return positions
 end
 
-function M.create_window(row, col, col_offset, min_row, bg_color)
+function M.create_window(row, col, col_offset, min_row, bg_color, is_tab_mode)
 	local highlight_color_name = string.gsub(bg_color, "#", ""):gsub("[(),%s%.]+", "")
 	local buf = vim.api.nvim_create_buf(false, true)
 	local window = vim.api.nvim_open_win(buf, false, {
@@ -162,7 +162,8 @@ function M.create_window(row, col, col_offset, min_row, bg_color)
 	vim.api.nvim_command("highlight " .. highlight_color_name .. " guibg=" .. colors.get_color_value(bg_color))
 	vim.api.nvim_win_set_option(window, 'winhighlight', 'Normal:' .. highlight_color_name .. ',FloatBorder:' .. highlight_color_name)
 
-	local row_content = M.get_buffer_contents(row + min_row - 1, row + min_row)
+	local row_offset = is_tab_mode and 2 or 1
+	local row_content = M.get_buffer_contents(row + min_row - row_offset, row + min_row)
 	local col_position_on_buffer = col == 0 and 1 or col + 1 - col_offset
 	vim.api.nvim_buf_set_lines(buf, 0, 0, true, {string.sub(row_content[1], col_position_on_buffer, col_position_on_buffer)})
 
