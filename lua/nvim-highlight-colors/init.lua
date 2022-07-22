@@ -4,6 +4,15 @@ local colors = require("nvim-highlight-colors.colors")
 local load_on_start_up = false
 local windows = {}
 
+function get_column_offset()
+	local sign_column_value = vim.api.nvim_get_option_value('signcolumn', {})
+	if sign_column_value == 'yes' then
+		return 6
+	end
+
+	return 4
+end
+
 function is_window_already_created(row, value, display_column)
 	for index, windows_data in ipairs(windows) do
 		if windows_data.row == row and value == windows_data.color and windows_data.display_column == display_column then
@@ -41,20 +50,22 @@ function close_not_visible_windows(min_row, max_row)
 end
 
 function show_visible_windows(min_row, max_row)
+	local column_offset = get_column_offset()
 	local positions = utils.get_positions_by_regex(
 		{
 			colors.hex_regex,
 			colors.rgb_regex
 		},
 		min_row,
-		max_row
+		max_row,
+		column_offset
 	)
 	for index, data in pairs(positions) do
 		if is_window_already_created(data.row, data.value, data.display_column) == false then
 			table.insert(
 				windows,
 				{
-					win_id = utils.create_window(data.row, data.display_column, data.value),
+					win_id = utils.create_window(data.row, data.display_column, column_offset, data.value),
 					row = data.row,
 					color = data.value
 				}

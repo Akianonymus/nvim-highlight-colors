@@ -121,7 +121,7 @@ function M.get_win_visible_rows(winid)
 	)
 end
 
-function M.get_positions_by_regex(patterns, min_row, max_row)
+function M.get_positions_by_regex(patterns, min_row, max_row, col_offset)
 	local positions = {}
 	local content = M.get_buffer_contents(min_row, max_row)
 
@@ -134,7 +134,7 @@ function M.get_positions_by_regex(patterns, min_row, max_row)
 					table.insert(positions, {
 						value = match,
 						row = row,
-						display_column = #same_row_colors,
+						display_column = #same_row_colors + col_offset,
 						start_column = start_column,
 						end_column = end_column
 					})
@@ -145,11 +145,11 @@ function M.get_positions_by_regex(patterns, min_row, max_row)
 	return positions
 end
 
-function M.create_window(row, col, bg_color)
+function M.create_window(row, col, col_offset, bg_color)
 	local highlight_color_name = string.gsub(bg_color, "#", ""):gsub("[(),%s%.]+", "")
 	local row_content = M.get_buffer_contents(row, row + 1)
 	local buf = vim.api.nvim_create_buf(false, true)
-	local col_position_on_buffer = col == 0 and 1 or col + 1
+	local col_position_on_buffer = col == 0 and 1 or col + 1 - col_offset
 	vim.api.nvim_buf_set_lines(buf, 0, 0, true, {string.sub(row_content[1], col_position_on_buffer, col_position_on_buffer)})
 	local window = vim.api.nvim_open_win(buf, false, {
 		relative = "editor",
