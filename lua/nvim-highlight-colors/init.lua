@@ -90,14 +90,14 @@ local function show_visible_windows(min_row, max_row)
 				options.render == render_options.foreground
 			)
 		elseif is_window_already_created(data.row, data.value) == false then
-			table.insert(
-				windows,
-				{
-					win_id = utils.create_window(data.row, 0, data.value, row_offset),
-					row = data.row,
-					color = data.value
-				}
-			)
+            -- nvim_open_win doesn't work on first row with just relative = win and bufpos.row = -1
+            if data.row ~= -1 then
+              table.insert(windows, {
+                  win_id = utils.create_window(data.row, 0, data.value, row_offset),
+                  row = data.row,
+                  color = data.value,
+              })
+            end
 		end
 	end
 end

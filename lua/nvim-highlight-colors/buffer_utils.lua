@@ -25,11 +25,11 @@ function M.get_positions_by_regex(patterns, min_row, max_row, row_offset)
 				local last_repeated_color = repeated_colors_in_row[#repeated_colors_in_row]
 				local column_offset = last_repeated_color and last_repeated_color.end_column or nil
 
-                local pattern_without_usage_regex = M.remove_color_usage_pattern(match)
-                local t = vim.fn.matchstrpos(value, pattern_without_usage_regex, column_offset)
-                local start_column, end_column = t[2], t[3]
+				local pattern_without_usage_regex = M.remove_color_usage_pattern(match)
+				local t = vim.fn.matchstrpos(value, pattern_without_usage_regex, column_offset)
+				local start_column, end_column = t[2], t[3]
 
-				if (row >= 0) then
+				if (row >= -1) then
 					table.insert(positions, {
 						value = match,
 						row = row,
