@@ -13,7 +13,6 @@ local render_options = {
 local load_on_start_up = false
 local row_offset = 2
 local windows = {}
-local is_loaded = false
 local options = {
 	render = render_options.first_column,
 	enable_tailwind = false
@@ -118,13 +117,13 @@ local function turn_on()
 	local min_row = visible_rows[1]
 	local max_row = visible_rows[2]
 	show_visible_windows(min_row, max_row)
-	is_loaded = true
+	vim.b.loaded_nvim_highlight_colors = true
 end
 
 local function turn_off()
 	close_windows()
 	clear_highlights()
-	is_loaded = false
+	vim.b.loaded_nvim_highlight_colors = false
 end
 
 local function setup(user_options)
@@ -136,7 +135,7 @@ local function setup(user_options)
 end
 
 local function toggle()
-	if is_loaded then
+	if vim.b.nvim_highlight_colors_loaded then
 		turn_off()
 	else
 		turn_on()
@@ -144,18 +143,28 @@ local function toggle()
 end
 
 vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI", "TextChangedP"}, {
-	callback = update_windows_visibility,
+	callback = function ()
+        -- only reload if it was not disabled using :HighlightColorsOff
+        if vim.b.loaded_nvim_highlight_colors then update_windows_visibility() end
+    end,
 })
 
 vim.api.nvim_create_autocmd({"WinScrolled"}, {
-	callback = update_windows_visibility,
+	callback = function ()
+        -- only reload if it was not disabled using :HighlightColorsOff
+        if vim.b.loaded_nvim_highlight_colors then update_windows_visibility() end
+    end,
 })
 
-vim.api.nvim_create_autocmd({"BufEnter"}, {
+vim.api.nvim_create_autocmd({"BufWinEnter"}, {
 	callback = function ()
-		if load_on_start_up == true then
-			turn_on()
-		end
+		-- this should ideally be triggered one time per buffer
+		-- but BufWinEnter also triggers for split formation
+        -- but we don't want that so add a check using local buffer variable
+        if load_on_start_up == true and not vim.b.nvim_highlight_colors_initialized then
+            turn_on()
+            vim.b.nvim_highlight_colors_initialized = true
+        end
 	end,
 })
 
