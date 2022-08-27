@@ -144,7 +144,7 @@ local function toggle()
 end
 
 vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI", "TextChangedP"}, {
-	callback = turn_on,
+	callback = update_windows_visibility,
 })
 
 vim.api.nvim_create_autocmd({"WinScrolled"}, {
